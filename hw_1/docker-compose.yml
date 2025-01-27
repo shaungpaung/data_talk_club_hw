@@ -12,7 +12,7 @@ services:
       - vol-pgdata:/var/lib/postgresql/data
 
   pgadmin:
-    container_name: pgadmin
+    container_name: pgadmin_1
     image: dpage/pgadmin4:latest
     environment:
       PGADMIN_DEFAULT_EMAIL: "pgadmin@pgadmin.com"
@@ -21,6 +21,8 @@ services:
       - "8080:80"
     volumes:
       - vol-pgadmin_data:/var/lib/pgadmin  
+
+
 
 volumes:
   vol-pgdata:
