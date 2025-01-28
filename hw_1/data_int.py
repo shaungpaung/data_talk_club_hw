@@ -2,6 +2,7 @@ import argparse
 import os
 import pandas as pd
 from sqlalchemy import create_engine
+
 def main(params):
     user=params.user
     password=params.password
@@ -11,37 +12,31 @@ def main(params):
     table_name=params.table_name
     url=params.url
     
-    file_path = 'output.csv' # this might be qarquet file
+    data_file_name = 'output.csv' 
     
-    os.system(f"wget {url} -O {file_path}")
-    
+    os.system(f"wget {url} -O {data_file_name}")
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
-    # dtype_mapping = {'store_and_fwd_flag': 'string'}
-    # df = pd.read_csv(file_path, dtype=dtype_mapping)
-    df = pd.read_csv(file_path)
-
-    print(pd.io.sql.get_schema(df, name = 'yellow_taxi_data', con=engine))
+    
+    df = pd.read_csv(data_file_name)
+    
+    print(pd.io.sql.get_schema(df, name=table_name, con=engine))
 
     df.head(n=0).to_sql(name=table_name, con=engine, if_exists='replace')
     
     df.to_sql(name=table_name, con=engine, if_exists='append')
+    
+    print(f"Data successfully loaded into the {table_name} table.")
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Ingest data into PostgreSQL')
-    # use 
-    # password
-    # host
-    # port
-    # database name
-    # table name
-    # url of the data
-
-    parser.add_argument('--user', help='user name for postgres')
-    parser.add_argument('--password', help='password for postgres')
-    parser.add_argument('--host', help='host for postgres')
-    parser.add_argument('--port', help='port for postgres')
-    parser.add_argument('--db', help='database name for postgres')
-    parser.add_argument('--table_name', help='name of the table where we will write the result to')
-    parser.add_argument('--url', help='url of the data')
+    
+    parser.add_argument('--user', help='User name for PostgreSQL', required=True)
+    parser.add_argument('--password', help='Password for PostgreSQL', required=True)
+    parser.add_argument('--host', help='Host for PostgreSQL', required=True)
+    parser.add_argument('--port', help='Port for PostgreSQL', required=True)
+    parser.add_argument('--db', help='Database name for PostgreSQL', required=True)
+    parser.add_argument('--table_name', help='Name of the table to write to', required=True)
+    parser.add_argument('--url', help='URL of the data', required=True)
 
     args = parser.parse_args()
     main(args)
